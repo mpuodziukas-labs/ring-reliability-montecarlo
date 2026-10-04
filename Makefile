@@ -1,0 +1,2 @@
+proof:
+	./run.sh

@@ -1,0 +1,34 @@
+class	param	state	low	high	confidence	source	note
+poison	rate_per_h	before	1.0	1.0	OBSERVED	private incident log, finding 27	master exited at 22:52 and 23:52, same bad message re-sent every hour
+poison	rate_per_h	current	0.2	1.0	ESTIMATED	private incident log, finding 27; private wave handoff, 00:57 note	fix is in code but not deployed; no exit at the 00:52 slot, cause unknown, sender side still open
+poison	rate_per_h	fix_poison	0.0	0.05	ESTIMATED	private incident log, finding 27	bad message dropped and logged; other exit causes not seen, range kept above zero
+poison	detect_min	all	0.0	0.5	ESTIMATED	private incident log, finding 27	service manager restarts the process at once
+poison	heal_min	all	1.5	3.0	ESTIMATED	private incident log, finding 27	restored in "about 2 min"
+poison	p_owner	all	0.0	0.05	ESTIMATED	private incident log, finding 27	two exits, both self-healed
+probe_collision	rate_per_h	before	0.05	0.5	ESTIMATED	private incident log, finding 25	two collisions seen (22:52, 23:39), neither tied to an outage, so this is an upper-bound style range
+probe_collision	rate_per_h	current	0.0	0.05	ESTIMATED	private incident log, finding 25	probe mutex fixed 00:09, only hours of soak since
+probe_collision	detect_min	all	0.0	1.0	ESTIMATED	private incident log, finding 25	false RED is immediate
+probe_collision	heal_min	all	1.0	10.0	ESTIMATED	private incident log, finding 23	re-place took 1 min once and 10 min once
+probe_collision	p_owner	all	0.0	0.02	ESTIMATED	private incident log, finding 25	never needed an owner
+false_stuck	rate_per_h	before	0.3	1.8	ESTIMATED	private incident log, finding 23	four re-places about 33 min apart in one evening window (1.8 per hour), one more at 22:59
+false_stuck	rate_per_h	current	0.0	0.05	ESTIMATED	private incident log, finding 23	probe fixed 23:10, no recurrence yet seen
+false_stuck	detect_min	all	0.0	2.0	ESTIMATED	private incident log, finding 23	two blank probes in a row trigger it
+false_stuck	heal_min	all	5.0	12.0	ESTIMATED	private incident log, finding 23	one case held the placement lock 10 min
+false_stuck	p_owner	all	0.0	0.02	ESTIMATED	private incident log, finding 23	self-healed each time
+election	rate_per_h	before	0.2	1.0	ESTIMATED	private incident log, finding 29; finding 32	one unprompted election in about 2 h while director jobs pushed load to 3.5 to 5.8
+election	rate_per_h	current	0.05	0.5	ESTIMATED	private incident log, finding 29; finding 32	heavy jobs now share one lock and run niced; the load link is a hypothesis
+election	p_drop	all	0.2	0.8	ESTIMATED	private incident log, finding 29	two election episodes seen, one dropped a runner
+half_placement	detect_min	current	2.0	4.0	ESTIMATED	private incident log, finding 29	self-healer waited 3 ticks, 2 min 59 s from election to re-place, one observation
+half_placement	detect_min	fix_halfplace	0.3	1.5	ESTIMATED	private incident log, finding 29	re-place on first sight of a missing runner; no measurement yet
+half_placement	heal_min	all	0.8	2.0	ESTIMATED	private incident log, finding 29	re-place to serving in 60 s, one observation; a node restart healed in 61 s
+half_placement	p_owner	current	0.05	0.3	ESTIMATED	private incident log, finding 29; private wave handoff, placer-flap note	two placers can flap and leave a half-placed instance; owner step to clear
+half_placement	p_owner	fix_halfplace	0.0	0.1	ESTIMATED	private incident log, finding 29	single re-place path
+wedge	rate_per_h	all	0.02	0.2	ESTIMATED	private wave handoff, 00:10 state; private incident log, finding 27	one up-but-no-tokens case seen; GPU timeout also named in finding 27
+wedge	detect_min	all	2.0	10.0	ESTIMATED	private wave handoff, 00:10 state	needs two blank probes; probe cadence is minutes
+wedge	heal_min	all	1.0	7.0	ESTIMATED	private wave handoff, 00:10 state	re-place and cold load, 7 min is the ready-wait budget
+wedge	p_owner	current	1.0	1.0	OBSERVED	private wave handoff, 00:10 state	the named fix is an owner button
+wedge	p_owner	fix_wedge	0.1	0.5	ESTIMATED	private wave handoff, 00:10 state	auto-recover exists as a tested script, never run live
+node_unreachable	rate_per_h	all	0.002	0.05	ESTIMATED	private wave handoff, 13:50 state	one case: link inactive, ssh timeout, owner power-cycled
+node_unreachable	detect_min	all	0.0	1.0	ESTIMATED	private wave handoff, 13:50 state	unused while p_owner is 1
+node_unreachable	heal_min	all	0.0	1.0	ESTIMATED	private wave handoff, 13:50 state	unused while p_owner is 1
+node_unreachable	p_owner	all	1.0	1.0	OBSERVED	private wave handoff, 13:50 state	owner action needed

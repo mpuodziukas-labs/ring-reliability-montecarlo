@@ -1,0 +1,270 @@
+FFFFFFFFFFFFFF.......                                                    [100%]
+=================================== FAILURES ===================================
+____________________________ test_seed_determinism _____________________________
+
+    def test_seed_determinism():
+>       a = model.simulate(CURRENT, 500, seed=7)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ranges = {'election.p_drop': (0.2, 0.8, 'ESTIMATED'), 'election.rate_per_h': (0.05, 0.5, 'ESTIMATED'), 'false_stuck.detect_min': (0.0, 2.0, 'ESTIMATED'), 'false_stuck.heal_min': (5.0, 12.0, 'ESTIMATED'), ...}
+n = 500, seed = 7, values = None
+
+>   def simulate(ranges, n, seed, values=None): raise NotImplementedError
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:3: NotImplementedError
+_____________ test_zero_failure_rate_gives_probability_exactly_one _____________
+
+    def test_zero_failure_rate_gives_probability_exactly_one():
+>       s = model.summarize(model.simulate(model.zero_ranges(), 2000, seed=1))
+                                           ^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   def zero_ranges(): raise NotImplementedError
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:2: NotImplementedError
+_________________ test_always_down_owner_only_class_gives_zero _________________
+
+    def test_always_down_owner_only_class_gives_zero():
+>       r = ranges(wedge__rate_per_h=(1000, 1000), wedge__p_owner=(1, 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_model.py:10: in ranges
+    r = model.zero_ranges()
+        ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   def zero_ranges(): raise NotImplementedError
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:2: NotImplementedError
+_________ test_poisson_analytic_instant_heal_matches_exp_minus_rate_t __________
+
+    def test_poisson_analytic_instant_heal_matches_exp_minus_rate_t():
+        rate = 0.3                                            # per hour, T = 5 h
+>       r = ranges(poison__rate_per_h=(rate, rate))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_model.py:10: in ranges
+    r = model.zero_ranges()
+        ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   def zero_ranges(): raise NotImplementedError
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:2: NotImplementedError
+________________ test_poisson_mean_event_count_scales_with_rate ________________
+
+    def test_poisson_mean_event_count_scales_with_rate():
+>       a = model.simulate(ranges(poison__rate_per_h=(0.5, 0.5)), 4000, seed=3)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_model.py:10: in ranges
+    r = model.zero_ranges()
+        ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   def zero_ranges(): raise NotImplementedError
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:2: NotImplementedError
+__________________ test_heal_time_is_applied_detect_plus_heal __________________
+
+    def test_heal_time_is_applied_detect_plus_heal():
+        v = {"poison.detect_min": 2.0, "poison.heal_min": 3.0, "poison.p_owner": 0.0}
+        rng = random.Random(5)
+>       ds = [model.outage_end(rng, v, "poison", 10.0) - 10.0 for _ in range(20000)]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_model.py:59: in <listcomp>
+    ds = [model.outage_end(rng, v, "poison", 10.0) - 10.0 for _ in range(20000)]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rng = <random.Random object at 0x9dc70ca20>
+v = {'poison.detect_min': 2.0, 'poison.heal_min': 3.0, 'poison.p_owner': 0.0}
+cls = 'poison', t = 10.0
+
+>   def outage_end(rng, v, cls, t): raise NotImplementedError
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:6: NotImplementedError
+______________ test_owner_probability_means_down_to_end_of_night _______________
+
+    def test_owner_probability_means_down_to_end_of_night():
+        v = {"poison.detect_min": 0.0, "poison.heal_min": 0.0, "poison.p_owner": 1.0}
+>       assert model.outage_end(random.Random(1), v, "poison", 10.0) == model.NIGHT_MIN
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rng = <random.Random object at 0x9dc70d420>
+v = {'poison.detect_min': 0.0, 'poison.heal_min': 0.0, 'poison.p_owner': 1.0}
+cls = 'poison', t = 10.0
+
+>   def outage_end(rng, v, cls, t): raise NotImplementedError
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:6: NotImplementedError
+________________ test_heal_time_drives_downtime_in_a_whole_run _________________
+
+    def test_heal_time_drives_downtime_in_a_whole_run():
+>       r = ranges(poison__rate_per_h=(1000, 1000), poison__heal_min=(10, 10))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_model.py:10: in ranges
+    r = model.zero_ranges()
+        ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   def zero_ranges(): raise NotImplementedError
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:2: NotImplementedError
+_____________ test_election_drop_probability_gates_half_placement ______________
+
+    def test_election_drop_probability_gates_half_placement():
+        base = dict(election__rate_per_h=(1000, 1000), half_placement__heal_min=(10, 10))
+>       none = model.summarize(model.simulate(ranges(election__p_drop=(0, 0), **base), 200, seed=2))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:76: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_model.py:10: in ranges
+    r = model.zero_ranges()
+        ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   def zero_ranges(): raise NotImplementedError
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:2: NotImplementedError
+___________________________ test_wilson_known_values ___________________________
+
+    def test_wilson_known_values():
+>       lo, hi = model.wilson(50, 100)
+                 ^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+k = 50, n = 100
+
+>   def wilson(k, n): raise NotImplementedError
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:5: NotImplementedError
+____________________________ test_p95_nearest_rank _____________________________
+
+    def test_p95_nearest_rank():
+>       assert model.percentile95(list(range(1, 101))) == 95
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+xs = [1, 2, 3, 4, 5, 6, ...]
+
+>   def percentile95(xs): raise NotImplementedError
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:7: NotImplementedError
+________ test_each_single_fix_does_not_lower_p_full_and_all_three_help _________
+
+    def test_each_single_fix_does_not_lower_p_full_and_all_three_help():
+        n = 6000
+>       base = model.summarize(model.simulate(CURRENT, n, seed=4))["p_full"]
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ranges = {'election.p_drop': (0.2, 0.8, 'ESTIMATED'), 'election.rate_per_h': (0.05, 0.5, 'ESTIMATED'), 'false_stuck.detect_min': (0.0, 2.0, 'ESTIMATED'), 'false_stuck.heal_min': (5.0, 12.0, 'ESTIMATED'), ...}
+n = 6000, seed = 4, values = None
+
+>   def simulate(ranges, n, seed, values=None): raise NotImplementedError
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:3: NotImplementedError
+______________________ test_before_is_worse_than_current _______________________
+
+    def test_before_is_worse_than_current():
+        n = 6000
+>       b = model.summarize(model.simulate(params.resolve(ROWS, "before"), n, seed=4))["p_full"]
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ranges = {'election.p_drop': (0.2, 0.8, 'ESTIMATED'), 'election.rate_per_h': (0.2, 1.0, 'ESTIMATED'), 'false_stuck.detect_min': (0.0, 2.0, 'ESTIMATED'), 'false_stuck.heal_min': (5.0, 12.0, 'ESTIMATED'), ...}
+n = 6000, seed = 4, values = None
+
+>   def simulate(ranges, n, seed, values=None): raise NotImplementedError
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:3: NotImplementedError
+____________ test_tornado_ranks_the_parameter_that_moves_the_answer ____________
+
+    def test_tornado_ranks_the_parameter_that_moves_the_answer():
+>       r = ranges(wedge__rate_per_h=(0.0, 0.5), wedge__p_owner=(1, 1))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_model.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_model.py:10: in ranges
+    r = model.zero_ranges()
+        ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   def zero_ranges(): raise NotImplementedError
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   NotImplementedError
+
+ringmc/model.py:2: NotImplementedError
+=========================== short test summary info ============================
+FAILED tests/test_model.py::test_seed_determinism - NotImplementedError
+FAILED tests/test_model.py::test_zero_failure_rate_gives_probability_exactly_one
+FAILED tests/test_model.py::test_always_down_owner_only_class_gives_zero - No...
+FAILED tests/test_model.py::test_poisson_analytic_instant_heal_matches_exp_minus_rate_t
+FAILED tests/test_model.py::test_poisson_mean_event_count_scales_with_rate - ...
+FAILED tests/test_model.py::test_heal_time_is_applied_detect_plus_heal - NotI...
+FAILED tests/test_model.py::test_owner_probability_means_down_to_end_of_night
+FAILED tests/test_model.py::test_heal_time_drives_downtime_in_a_whole_run - N...
+FAILED tests/test_model.py::test_election_drop_probability_gates_half_placement
+FAILED tests/test_model.py::test_wilson_known_values - NotImplementedError
+FAILED tests/test_model.py::test_p95_nearest_rank - NotImplementedError
+FAILED tests/test_model.py::test_each_single_fix_does_not_lower_p_full_and_all_three_help
+FAILED tests/test_model.py::test_before_is_worse_than_current - NotImplemente...
+FAILED tests/test_model.py::test_tornado_ranks_the_parameter_that_moves_the_answer
+14 failed, 7 passed
