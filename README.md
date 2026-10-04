@@ -1,8 +1,8 @@
 # ring-reliability-montecarlo
 
-Nobody could say how likely a two-node local inference cluster is to serve through an unattended night, or which fix to build next.
-
 Proves: reliability reasoning under thin evidence. A Monte Carlo model that turns incident-log timings into a probability with an interval, a ranked fix list, and a list of what to measure next. Verify in about 45 s with `./run.sh` (or `make proof`).
+
+Nobody could say how likely a two-node local inference cluster is to serve through an unattended night, or which fix to build next.
 
 ## Business problem
 
