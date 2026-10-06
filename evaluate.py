@@ -70,6 +70,11 @@ def results(n=N, n_tornado=N_TORNADO):
     for i, r in enumerate(tor[:8], 1):
         out.append(f"| {i} | {r['key']} | {rng_txt(r['low'], r['high'])} | {pct(r['p_at_low'])} | {pct(r['p_at_high'])} | "
                    f"{100 * r['swing']:.1f} pp |")
+    out += ["", f"Ring failure classes injected at random ({n} nights, parameters drawn per night). Recovered = back before 06:00 with no owner step; "
+                "each cell is recovered/injected.", "", "| class | current state | current + all three fixes |", "|---|---|---|"]
+    fixed = params.resolve(rows, "current", [f for f, _ in FIXES])
+    rc, rf = model.recovery_totals(cur, n, SEED), model.recovery_totals(fixed, n, SEED)
+    out += [f"| {k} | {rc[k][1]}/{rc[k][0]} | {rf[k][1]}/{rf[k][0]} |" for k, _ in model.INJECTED]
     return "\n".join(out)
 
 

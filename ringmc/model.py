@@ -70,6 +70,45 @@ def run_once(v, seed, i):
     return union_minutes(iv), len(iv), any(e >= NIGHT_MIN for _, e in iv)
 
 
+# Ring failure classes that have rate evidence in the parameter file. The three logic classes (interpreter
+# split-brain, busy filed as red, red without cause) have no rate or timing evidence, so they are not injected here.
+INJECTED = (("c1_master_death_on_malformed_gossip", "poison"), ("c2_probe_collision", "probe_collision"),
+            ("c3_heavy_job_reelection", "election"), ("c4_placement_thrash", "false_stuck"),
+            ("c5_transport_dead", "node_unreachable"), ("c6_worker_gpu_wedge", "wedge"))
+
+
+def recovery(v, seed, i):
+    """One night, per class: (injected, recovered). Same random streams as run_once.
+    Recovered = back before 06:00 with no owner step."""
+    out = {}
+    for name, cls in INJECTED:
+        rng = random.Random(f"{seed}:{i}:{cls}")
+        inj = rec = 0
+        for t in arrivals(rng, v[f"{cls}.rate_per_h"]):
+            inj += 1
+            if cls == "election" and rng.random() >= v["election.p_drop"]:
+                rec += 1                                        # no runner dropped, nothing to heal
+            else:
+                rec += outage_end(rng, v, "half_placement" if cls == "election" else cls, t) < NIGHT_MIN
+        out[name] = (inj, rec)
+    return out
+
+
+def recovery_totals(ranges, n, seed):
+    """Sum of recovery over n nights, parameters drawn per night as in simulate."""
+    tot = {name: [0, 0] for name, _ in INJECTED}
+    for i in range(n):
+        for name, (inj, rec) in recovery(_draw(ranges, seed, i), seed, i).items():
+            tot[name][0] += inj
+            tot[name][1] += rec
+    return {k: tuple(v) for k, v in tot.items()}
+
+
+def _draw(ranges, seed, i):
+    u = random.Random(f"{seed}:{i}:u")
+    return {k: ranges[k][0] + u.random() * (ranges[k][1] - ranges[k][0]) for k in KEYS}
+
+
 def simulate(ranges, n, seed, values=None):
     """n nights. Each night draws every parameter once from its range (parameter uncertainty), or takes
     `values` as fixed numbers. Parameter draws use the same uniform numbers in every scenario."""
@@ -78,11 +117,7 @@ def simulate(ranges, n, seed, values=None):
         if values is not None:
             v = values
         else:
-            u = random.Random(f"{seed}:{i}:u")
-            v = {}
-            for k in KEYS:
-                lo, hi = ranges[k][0], ranges[k][1]
-                v[k] = lo + u.random() * (hi - lo)
+            v = _draw(ranges, seed, i)
         out.append(run_once(v, seed, i))
     return out
 

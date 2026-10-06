@@ -17,7 +17,7 @@ python3 -m pip install pytest
 ./run.sh
 ```
 
-`run.sh` runs three steps and exits 0 only if all pass: `evaluate.py` (scenarios, ranked fixes, tornado), `pytest` (25 tests), and `mutants.py` (14 mutants). Python standard library only, plus pytest. On a laptop it takes about 45 seconds, mostly the 20000-night runs.
+`run.sh` runs three steps and exits 0 only if all pass: `evaluate.py` (scenarios, ranked fixes, tornado), `pytest` (29 tests), and `mutants.py` (17 mutants). Python standard library only, plus pytest. On a laptop it takes about 45 seconds, mostly the 20000-night runs.
 
 ## How the model works
 
@@ -79,6 +79,17 @@ Tornado on the current state: every parameter held at its range midpoint (3000 n
 | 7 | false_stuck.rate_per_h | 0 to 0.05 | 32.0% | 27.6% | 4.5 pp |
 | 8 | half_placement.p_owner | 0.05 to 0.3 | 31.8% | 28.0% | 3.8 pp |
 
+Ring failure classes injected at random (20000 nights, parameters drawn per night). Recovered = back before 06:00 with no owner step; each cell is recovered/injected.
+
+| class | current state | current + all three fixes |
+|---|---|---|
+| c1_master_death_on_malformed_gossip | 57832/59799 | 2366/2437 |
+| c2_probe_collision | 2404/2473 | 2404/2473 |
+| c3_heavy_job_reelection | 25181/27693 | 26902/27693 |
+| c4_placement_thrash | 2465/2587 | 2465/2587 |
+| c5_transport_dead | 0/2647 | 0/2647 |
+| c6_worker_gpu_wedge | 0/11095 | 7512/11095 |
+
 ## Exact output of `./run.sh`
 
 The pytest line also prints a run time, which differs per machine and is left out here.
@@ -124,9 +135,20 @@ Tornado on the current state: every parameter held at its range midpoint (3000 n
 | 7 | false_stuck.rate_per_h | 0 to 0.05 | 32.0% | 27.6% | 4.5 pp |
 | 8 | half_placement.p_owner | 0.05 to 0.3 | 31.8% | 28.0% | 3.8 pp |
 
-25 passed
+Ring failure classes injected at random (20000 nights, parameters drawn per night). Recovered = back before 06:00 with no owner step; each cell is recovered/injected.
 
-control 14/14 test groups pass unmodified
+| class | current state | current + all three fixes |
+|---|---|---|
+| c1_master_death_on_malformed_gossip | 57832/59799 | 2366/2437 |
+| c2_probe_collision | 2404/2473 | 2404/2473 |
+| c3_heavy_job_reelection | 25181/27693 | 26902/27693 |
+| c4_placement_thrash | 2465/2587 | 2465/2587 |
+| c5_transport_dead | 0/2647 | 0/2647 |
+| c6_worker_gpu_wedge | 0/11095 | 7512/11095 |
+
+29 passed
+
+control 17/17 test groups pass unmodified
 RED  poisson: rate not converted to per minute
 RED  poisson: arrivals run past the night
 RED  heal: heal time never applied
@@ -141,12 +163,19 @@ RED  scenario: before state ignored
 RED  scenario: fix applied before current
 RED  params: source not required
 RED  seed: draws not reproducible
-mutants killed 14/14
+RED  recovery: an owner-only event counted as recovered
+RED  recovery: a heal past 06:00 counted as recovered
+RED  recovery: a dropped runner counted as recovered
+mutants killed 17/17
 ```
+
+## Ring failure classes injected at random
+
+The last table in Results maps six of the nine failure classes seen on the real ring onto the existing parameter rows: master death on a malformed message (poison), probe collision, heavy-job re-election (election, then a dropped runner), placement thrash (false_stuck), transport dead (node_unreachable) and worker GPU wedge (wedge). Each night injects every class by its own rate and counts an event as recovered when the outage ends before 06:00 with no owner step. The cell is recovered/injected over all 20000 nights. A class with `p_owner` of 1 recovers 0 times by construction, which is what the table shows for transport dead. The three logic classes (interpreter split-brain, busy filed as red, red without cause) have no rate or timing evidence in `params/observed.tsv`, so they are not injected here; their oracles are in the companion repo `self-healing-inference-ring`.
 
 ## Mutants
 
-Each mutant breaks one piece of the model in a scratch copy: Poisson sampling, heal-time or detect-time application, the owner-only path, outage merging, the election drop probability, the interval and percentile maths, the scenario fix toggles and layer order, the source requirement, and seeding. The named tests must go RED. A control run of the same tests on an untouched copy must pass first, so a RED means the code mattered. `mutants.py` fails if any mutant stays alive or any pattern stops matching exactly once.
+Each mutant breaks one piece of the model in a scratch copy: Poisson sampling, the recovery count, heal-time or detect-time application, the owner-only path, outage merging, the election drop probability, the interval and percentile maths, the scenario fix toggles and layer order, the source requirement, and seeding. The named tests must go RED. A control run of the same tests on an untouched copy must pass first, so a RED means the code mattered. `mutants.py` fails if any mutant stays alive or any pattern stops matching exactly once.
 
 ## Tests that carry the claims
 
@@ -158,6 +187,7 @@ Each mutant breaks one piece of the model in a scratch copy: Poisson sampling, h
 - The parameter file rejects a row with no source, an ESTIMATED row with no range, a path as a source, a bad state, a probability above 1, and a missing required parameter.
 - Every single fix leaves P(serves) no lower, all three together raise it, and the before state is worse than the current state.
 - The tornado ranks the parameter that moves the answer and skips fixed values.
+- Recovery counting: an owner-only class never recovers, an instant heal always does, a heal past 06:00 does not, and an election with no dropped runner needs no heal.
 - The README tables equal the program output, and no private path or address is in the repo.
 
 ## Honesty Statement
@@ -183,7 +213,7 @@ ringmc/params.py       parse, validate, resolve a scenario (base state plus fixe
 ringmc/model.py        Poisson arrivals, outages, merging, summary, Wilson, tornado
 evaluate.py            scenario table, ranked fixes, budget table, tornado
 mutants.py             the mutation check
-tests/                 25 tests
+tests/                 29 tests
 evidence/red-run.txt   the first test run, RED, before the model existed
 run.sh, Makefile       the one command
 ```

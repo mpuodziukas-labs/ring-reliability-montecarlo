@@ -20,6 +20,9 @@ MUTANTS = [
     ("scenario: fix applied before current", P, 'layers = ["all", "current"] + (["before"] if base == "before" else []) + list(fixes)', 'layers = list(fixes) + ["all", "current"] + (["before"] if base == "before" else [])', [TP + "::test_fixes_override_current_and_before_overrides_current"]),
     ("params: source not required", P, 'for c in COLS if c != "note"', 'for c in ("class", "param")', [TP + "::test_row_without_a_source_is_rejected"]),
     ("seed: draws not reproducible", M, 'random.Random(f"{seed}:{i}:u")', "random.Random()", [TM + "::test_seed_determinism"]),
+    ("recovery: an owner-only event counted as recovered", M, 'rec += outage_end(rng, v, "half_placement" if cls == "election" else cls, t) < NIGHT_MIN', "rec += 1", [TM + "::test_recovery_owner_only_class_never_recovers_instant_heal_always_does"]),
+    ("recovery: a heal past 06:00 counted as recovered", M, "half_placement\" if cls == \"election\" else cls, t) < NIGHT_MIN", "half_placement\" if cls == \"election\" else cls, t) < NIGHT_MIN * 1e9", [TM + "::test_recovery_heal_past_the_night_is_not_a_recovery"]),
+    ("recovery: a dropped runner counted as recovered", M, 'rng.random() >= v["election.p_drop"]', 'rng.random() < v["election.p_drop"]', [TM + "::test_recovery_election_without_a_dropped_runner_recovers_and_a_stuck_one_does_not"]),
 ]
 
 

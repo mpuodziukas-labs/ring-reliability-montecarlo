@@ -118,3 +118,30 @@ def test_tornado_ranks_the_parameter_that_moves_the_answer():
     assert rows[0]["key"] == "wedge.rate_per_h"
     assert rows[0]["swing"] > rows[1]["swing"] >= 0
     assert all(x["key"] != "wedge.p_owner" for x in rows)  # fixed value, no range, not a tornado bar
+
+
+def test_recovery_owner_only_class_never_recovers_instant_heal_always_does():
+    own = model.recovery_totals(ranges(wedge__rate_per_h=(600, 600), wedge__p_owner=(1, 1)), 20, seed=1)
+    assert own["c6_worker_gpu_wedge"][0] > 0 and own["c6_worker_gpu_wedge"][1] == 0
+    ok = model.recovery_totals(ranges(poison__rate_per_h=(5, 5)), 200, seed=1)
+    assert ok["c1_master_death_on_malformed_gossip"][0] > 0
+    assert ok["c1_master_death_on_malformed_gossip"][1] == ok["c1_master_death_on_malformed_gossip"][0]
+
+
+def test_recovery_heal_past_the_night_is_not_a_recovery():
+    r = model.recovery_totals(ranges(probe_collision__rate_per_h=(60, 60), probe_collision__heal_min=(1e6, 1e6)), 20, seed=2)
+    assert r["c2_probe_collision"][0] > 0 and r["c2_probe_collision"][1] == 0
+
+
+def test_recovery_election_without_a_dropped_runner_recovers_and_a_stuck_one_does_not():
+    base = dict(election__rate_per_h=(60, 60))
+    a = model.recovery_totals(ranges(election__p_drop=(0, 0), **base), 20, seed=3)["c3_heavy_job_reelection"]
+    b = model.recovery_totals(ranges(election__p_drop=(1, 1), half_placement__p_owner=(1, 1), **base), 20, seed=3)["c3_heavy_job_reelection"]
+    assert a[0] > 0 and a[1] == a[0] and b[0] > 0 and b[1] == 0
+
+
+def test_recovery_covers_six_classes_and_every_one_is_injected_with_current_params():
+    r = model.recovery_totals(CURRENT, 800, seed=5)
+    assert len(r) == 6
+    assert all(inj > 0 and 0 <= rec <= inj for inj, rec in r.values())
+    assert r == model.recovery_totals(CURRENT, 800, seed=5)
